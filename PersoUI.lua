@@ -82,6 +82,20 @@ local function eventHandler(self, event, ...)
 		end
 		hooksecurefunc(FocusFrameSpellBar, "SetPoint", MySetPoint)
 		
+		
+		--reposition castbar arena frame en dessous
+		local showCastbars = GetCVarBool("showArenaEnemyCastbar");
+		local castFrame;
+		for i = 1, MAX_ARENA_ENEMIES do
+			castFrame = _G["ArenaEnemyMatchFrame"..i.."CastingBar"];
+			castFrame:SetPoint("RIGHT", _G["ArenaEnemyMatchFrame"..i], "LEFT", 82, -25);
+			castFrame.showCastbar = showCastbars;
+			castFrame:UpdateIsShown();
+		end
+		ArenaEnemyFramesContainer:Update();
+		
+		
+		
 		local isInstance, instanceType = IsInInstance();
 		
 		eventHandlerDamp:Hide()
