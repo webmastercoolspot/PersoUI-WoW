@@ -45,6 +45,8 @@ local function eventHandler(self, event, ...)
 --------Interface Perso-----------------------
 	if (event == "PLAYER_LOGIN") then
 	
+		SetCVar("showArenaEnemyPets", 0)
+		
 		--ChatFrame1:SetScale(1.18)		
 		StatusTrackingBarManager:ClearAllPoints()
 		StatusTrackingBarManager:SetPoint("TOP",0,0)
@@ -60,13 +62,10 @@ local function eventHandler(self, event, ...)
 	end
 	
 	if (event == "PLAYER_ENTERING_WORLD") then
-		--Cache le quest tracker en pvp
-		--Quest Tracker en BG
-		--ObjectiveTrackerBlocksFrame:Hide()
 		
 		--cache les buff de la focus frame
 		FocusFrame.maxBuffs = 0
-        	FocusFrame.maxDebuffs = 0	
+        	FocusFrame.maxDebuffs = 0
         	
         	FocusFrameToT:ClearAllPoints()
 		FocusFrameToT:Hide()
@@ -82,24 +81,42 @@ local function eventHandler(self, event, ...)
 		end
 		hooksecurefunc(FocusFrameSpellBar, "SetPoint", MySetPoint)
 		
+		--deplacement de l'avancement cap base BG
+		local function MySetPointUIWidget(self, _, _, _, _, _, PreventLoop)
+			if  not PreventLoop then
+				UIWidgetBelowMinimapContainerFrame:ClearAllPoints()
+				UIWidgetBelowMinimapContainerFrame:SetPoint("RIGHT", UIParent, "RIGHT", -90,110,true)
+			end
+		end
+		hooksecurefunc(UIWidgetBelowMinimapContainerFrame, "SetPoint", MySetPointUIWidget)
+		
 		
 		--reposition castbar arena frame en dessous
 		local showCastbars = GetCVarBool("showArenaEnemyCastbar");
+		
 		local castFrame;
+		--local petFrame;
 		for i = 1, MAX_ARENA_ENEMIES do
 			castFrame = _G["ArenaEnemyMatchFrame"..i.."CastingBar"];
 			castFrame:SetPoint("RIGHT", _G["ArenaEnemyMatchFrame"..i], "LEFT", 82, -25);
 			castFrame.showCastbar = showCastbars;
 			castFrame:UpdateIsShown();
+			
+			--petFrame
+			--petFrame = _G["ArenaEnemyMatchFrame"..i.."PetFrame"];
+			--petFrame:Hide();
+			--petFrame:Update();
+			--UnitFrame_Update(petFrame);
 		end
 		ArenaEnemyFramesContainer:Update();
-		
-		
+
 		
 		local isInstance, instanceType = IsInInstance();
 		
 		eventHandlerDamp:Hide()
 		
+		--Cache le quest tracker en pvp
+		--Quest Tracker en BG
 		if (isInstance and instanceType == "pvp") then
 			if(not ObjectiveTrackerFrame.collapsed) then
 				ObjectiveTracker_Collapse();
